@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PC Speaker Tone Sweep</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;background:#0f172a;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+  .card{background:#1e293b;padding:25px;border-radius:18px;width:320px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  h2{margin-top:0}
+  button{margin-top:15px;padding:10px 18px;border:none;border-radius:12px;background:#38bdf8;color:#001018;font-weight:bold;cursor:pointer}
+  .freq{margin-top:10px;font-size:14px;opacity:.85}
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>Ultra Speaker Sweep</h2>
+  <div class="freq" id="freqText">100 Hz</div>
+  <button id="vibe">🔇 Vibration Off</button>
+  <button id="toggle">Start Sweep</button>
+</div>
+<script>
+let ctx,osc,gain,playing=false,anim,freq=100,vibrationEnabled=false;
+const freqText=document.getElementById('freqText');
+const btn=document.getElementById('toggle');
+const vibeBtn=document.getElementById('vibe');
+
+function setFreq(f){
+  freq=Math.round(f);
+  freqText.textContent=freq+" Hz";
+  if(osc) osc.frequency.setValueAtTime(freq,ctx.currentTime);
+
+  // vibration on bass range (phones only)
+  if(vibrationEnabled && navigator.vibrate && freq<250){
+    navigator.vibrate(30);
+  }
+}
+
+function sweep(){
+  const maxFreq=(ctx?ctx.sampleRate:48000)/2 - 100; // avoid aliasing limit
+  freq+=Math.max(5, freq*0.005); // logarithmic style sweep
+  if(freq>maxFreq) freq=100;
+  setFreq(freq);
+  anim=requestAnimationFrame(sweep);
+}
+
+vibeBtn.onclick=()=>{
+  vibrationEnabled=!vibrationEnabled;
+  vibeBtn.textContent=vibrationEnabled?"📳 Vibration On":"🔇 Vibration Off";
+};
+
+btn.onclick=async()=>{
+  if(!playing){
+    ctx=new (window.AudioContext||window.webkitAudioContext)();
+    await ctx.resume();
+    osc=ctx.createOscillator();
+    gain=ctx.createGain();
+    gain.gain.value=.08;
+    osc.type='sine';
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    sweep();
+    btn.textContent='Stop';
+    playing=true;
+  }else{
+    cancelAnimationFrame(anim);
+    if(osc) osc.stop();
+    if(ctx) ctx.close();
+    btn.textContent='Start Sweep';
+    playing=false;
+  }
+};
+</script>
+</body>
+</html>
