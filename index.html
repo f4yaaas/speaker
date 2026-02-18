@@ -5,110 +5,129 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Speaker Diagnostic</title>
 <style>
-  body{font-family:Arial,Helvetica,sans-serif;background:#0f172a;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
-  .card{background:#1e293b;padding:28px;border-radius:18px;width:340px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-  h2{margin:0 0 10px 0;font-weight:600}
-  .info{margin-top:8px;font-size:14px;opacity:.85}
-  button{margin-top:14px;padding:11px 18px;border:none;border-radius:12px;background:#38bdf8;color:#001018;font-weight:bold;cursor:pointer;width:100%}
-  button.secondary{background:#334155;color:#e5e7eb}
-  .ad-wrap{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;pointer-events:none}
-  .ad{width:min(600px,95%);margin:12px;border-radius:16px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,.45);transform:translateY(120%);animation:slideUp .9s ease forwards;animation-delay:2s;pointer-events:auto}
-  .ad img{display:block;width:100%;height:auto}
-  .ad-close{position:absolute;top:6px;right:8px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:16px;line-height:26px}
-  @keyframes slideUp{to{transform:translateY(0)}}
+  :root{--bg:#020617;--card:rgba(15,23,42,.75);--accent:#38bdf8;--accent2:#22c55e;--text:#e2e8f0}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,Arial;background:radial-gradient(circle at 30% 20%,#0f172a,#020617 70%);color:var(--text);display:flex;align-items:center;justify-content:center;min-height:100vh}
+  .wrap{width:380px}
+  .title{font-size:22px;font-weight:600;margin-bottom:14px;letter-spacing:.4px}
+  .card{backdrop-filter:blur(14px);background:var(--card);border-radius:22px;padding:26px;box-shadow:0 10px 40px rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.06)}
+  .status{margin-top:8px;font-size:13px;opacity:.85}
+  .tasks{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+  .task{padding:14px;border-radius:16px;background:#0f172a;border:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;transition:.25s}
+  .task.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .task.disabled{opacity:.4;pointer-events:none}
+  button{border:none;border-radius:12px;padding:9px 14px;font-weight:600;cursor:pointer}
+  .start{background:var(--accent);color:#001018}
+  .stop{background:#ef4444;color:#fff}
+  .secondary{background:#1e293b;color:#cbd5f5}
+  .badge{font-size:11px;padding:4px 8px;border-radius:999px;background:#020617;border:1px solid rgba(255,255,255,.08)}
+  .tools{margin-top:18px}
+  .slider{width:100%}
+  .donate{margin-top:18px;text-align:center}
+  .upiBox{margin-top:10px;padding:12px;border-radius:12px;background:#020617;border:1px dashed rgba(255,255,255,.15);font-size:13px}
+  .adBanner{position:fixed;left:0;right:0;bottom:-120px;margin:auto;width:360px;background:#0f172a;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 30px rgba(0,0,0,.6);transition:bottom .5s}
+  .adBanner.show{bottom:18px}
+  .adText{font-size:13px;opacity:.9}
+  .adBtn{background:#38bdf8;color:#001018;border-radius:10px;padding:8px 12px;font-weight:600}
+  .adClose{background:transparent;border:none;color:#94a3b8;font-size:16px;cursor:pointer}
 </style>
 </head>
 <body>
-<div class="card">
-  <h2>Speaker Test Player</h2>
-  <div class="info" id="status">Ready</div>
-  <button id="vibe" class="secondary">Vibration: Off</button>
-  <button id="toggle">Play</button>
-  <button id="dolby" class="secondary">Dolby Test</button>
+<div class="wrap">
+  <div class="title">Speaker Diagnostic</div>
+  <div class="card">
+    <div class="status" id="status">Ready — select a test</div>
+    <div class="tasks">
+      <div class="task" id="musicTask">
+        <div>
+          <b>Music Speaker Test</b><br>
+          <span class="badge">Stereo Check</span>
+        </div>
+        <button id="musicBtn" class="start">Start</button>
+      </div>
+      <div class="task" id="vibrationTask">
+        <div>
+          <b>Vibration Sync Test</b><br>
+          <span class="badge">Hardware Check</span>
+        </div>
+        <button id="vibeBtn" class="start">Start</button>
+      </div>
+      <div class="task" id="dolbyTask">
+        <div>
+          <b>Dolby Channel Test</b><br>
+          <span class="badge">Left / Right</span>
+        </div>
+        <button id="dolbyBtn" class="start">Start</button>
+      </div>
+      <div class="task" id="toneTask">
+        <div>
+          <b>Frequency Sweep</b><br>
+          <span class="badge">20Hz → 20kHz</span>
+        </div>
+        <button id="toneBtn" class="start">Start</button>
+      </div>
+    </div>
+
+    <div class="tools">
+      <div style="font-size:13px;margin-bottom:6px">Balance Control</div>
+      <input type="range" min="-1" max="1" step="0.1" value="0" id="balance" class="slider">
+    </div>
+
+    <div class="donate">
+      <button id="donateBtn" class="secondary">Support / Donate</button>
+      <div id="upi" class="upiBox" style="display:none">
+        UPI ID: ENTER_UPI_ID
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<div class="ad-wrap">
-  <div class="ad">
-    <button class="ad-close" id="adClose">×</button>
-    <a href="https://glider-app.pages.dev" target="_blank">
-    <img src="asset/banner.jpg" alt="Ad banner">
-  </a>
-  </div>
-
 <script>
-let playing=false,vibrationEnabled=false,vibeTimer=null;
+let activeTask=null;
 const status=document.getElementById('status');
-const btn=document.getElementById('toggle');
-const vibeBtn=document.getElementById('vibe');
-const music=new Audio('asset/track.mp3');
-let dolbyAudio=null;
-const dolbyBtn=document.getElementById('dolby');
-const adClose=document.getElementById('adClose');
-music.loop=true;
+const music=new Audio('asset/track.mp3'); music.loop=true;
+let vibeTimer=null; let dolbyAudio=null; let ctx=null; let osc=null; let panNode=null;
 
-function startVibration(){
-  if(!navigator.vibrate) return;
-  vibeTimer=setInterval(()=>{ if(vibrationEnabled) navigator.vibrate(60); },700);
-}
-
-function stopVibration(){
-  if(vibeTimer) clearInterval(vibeTimer);
-  navigator.vibrate?.(0);
-}
-
-vibeBtn.onclick=()=>{
-  vibrationEnabled=!vibrationEnabled;
-  vibeBtn.textContent=vibrationEnabled?"Vibration: On":"Vibration: Off";
+const tasks={
+  music:{el:musicTask,btn:musicBtn,start(){music.play();status.textContent='Music speaker test running';},stop(){music.pause();music.currentTime=0;}},
+  vibration:{el:vibrationTask,btn:vibeBtn,start(){if(navigator.vibrate){vibeTimer=setInterval(()=>navigator.vibrate(80),700);}status.textContent='Vibration sync running';},stop(){clearInterval(vibeTimer);navigator.vibrate?.(0);}},
+  dolby:{el:dolbyTask,btn:dolbyBtn,start(){dolbyAudio=new Audio('asset/dolby.mp3');dolbyAudio.loop=true;dolbyAudio.play();status.textContent='Dolby channel test running';},stop(){dolbyAudio?.pause();dolbyAudio&&(dolbyAudio.currentTime=0);}},
+  tone:{el:toneTask,btn:toneBtn,start(){ctx=new AudioContext();osc=ctx.createOscillator();panNode=ctx.createStereoPanner();osc.connect(panNode).connect(ctx.destination);osc.start();let f=20;const i=setInterval(()=>{osc.frequency.value=f;f*=1.15;if(f>20000){clearInterval(i)}},120);status.textContent='Frequency sweep running';},stop(){osc?.stop();ctx?.close();}}
 };
 
-btn.onclick=async()=>{
-  if(!playing){
-    await music.play().catch(()=>{});
-    startVibration();
-    status.textContent='Playing track.mp3';
-    btn.textContent='Stop';
-    playing=true;
-  }else{
-    music.pause();
-    music.currentTime=0;
-    stopVibration();
-    status.textContent='Stopped';
-    btn.textContent='Play';
-    playing=false;
-  }
-};
+function lockOthers(current){Object.values(tasks).forEach(t=>{if(t!==current)t.el.classList.add('disabled');});}
+function unlockAll(){Object.values(tasks).forEach(t=>t.el.classList.remove('disabled'));}
 
-adClose.onclick=()=>{
-  adClose.parentElement.style.display='none';
-};
+function toggle(name){
+  const t=tasks[name];
+  if(activeTask===t){t.stop();t.el.classList.remove('active');t.btn.textContent='Start';t.btn.className='start';activeTask=null;unlockAll();status.textContent='Ready — select a test';return;}
+  if(activeTask){activeTask.stop();activeTask.el.classList.remove('active');activeTask.btn.textContent='Start';activeTask.btn.className='start';}
+  activeTask=t;lockOthers(t);t.start();t.el.classList.add('active');t.btn.textContent='Stop';t.btn.className='stop';
+}
 
-// Dolby channel test using mp3 file
-function startDolby(){
-  dolbyAudio=new Audio('asset/dolby.mp3');
-  dolbyAudio.loop=true;
-  dolbyAudio.play().catch(()=>{});
-  status.textContent='Dolby test playing';
-}
-function stopDolby(){
-  if(dolbyAudio){
-    dolbyAudio.pause();
-    dolbyAudio.currentTime=0;
-  }
-  status.textContent='Dolby test stopped';
-}
-let dolbyOn=false;
-dolbyBtn.onclick=()=>{
-  if(!dolbyOn){
-    music.pause();
-    startDolby();
-    dolbyBtn.textContent='Stop Dolby Test';
-    dolbyOn=true;
-  }else{
-    stopDolby();
-    dolbyBtn.textContent='Dolby Test';
-    dolbyOn=false;
-  }
-};
+musicBtn.onclick=()=>toggle('music');
+vibeBtn.onclick=()=>toggle('vibration');
+dolbyBtn.onclick=()=>toggle('dolby');
+toneBtn.onclick=()=>toggle('tone');
+
+balance.oninput=e=>{if(panNode)panNode.pan.value=e.target.value};
+
+donateBtn.onclick=()=>{upi.style.display=upi.style.display==='none'?'block':'none'};
+</script>
+<div id="ad" class="adBanner" style="padding:0;overflow:hidden;cursor:pointer">
+  <img src="asset/banner.jpg" alt="ad" style="width:100%;display:block">
+  <button class="adClose" id="adClose" style="position:absolute;top:6px;right:10px">x</button>
+</div>
+  <div>
+    <button class="adBtn" id="adOpen">Open</button>
+    <button class="adClose" id="adClose">x</button>
+  </div>
+</div>
+<script>
+setTimeout(()=>ad.classList.add('show'),1200);
+ad.onclick=(e)=>{if(e.target.id!=='adClose')window.open('https://glider-app.pages.dev','_blank');};
+adClose.onclick=()=>ad.style.display='none';
 </script>
 </body>
 </html>
