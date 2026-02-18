@@ -3,71 +3,70 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>PC Speaker Tone Sweep</title>
+<title>Speaker Diagnostic</title>
 <style>
   body{font-family:Arial,Helvetica,sans-serif;background:#0f172a;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
-  .card{background:#1e293b;padding:25px;border-radius:18px;width:320px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-  h2{margin-top:0}
-  button{margin-top:15px;padding:10px 18px;border:none;border-radius:12px;background:#38bdf8;color:#001018;font-weight:bold;cursor:pointer}
-  .freq{margin-top:10px;font-size:14px;opacity:.85}
+  .card{background:#1e293b;padding:28px;border-radius:18px;width:340px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  h2{margin:0 0 10px 0;font-weight:600}
+  .info{margin-top:8px;font-size:14px;opacity:.85}
+  button{margin-top:14px;padding:11px 18px;border:none;border-radius:12px;background:#38bdf8;color:#001018;font-weight:bold;cursor:pointer;width:100%}
+  button.secondary{background:#334155;color:#e5e7eb}
+  .ad-wrap{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;pointer-events:none}
+  .ad{width:min(600px,95%);margin:12px;border-radius:16px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,.45);transform:translateY(120%);animation:slideUp .9s ease forwards;animation-delay:2s;pointer-events:auto}
+  .ad img{display:block;width:100%;height:auto}
+  @keyframes slideUp{to{transform:translateY(0)}}
 </style>
 </head>
 <body>
 <div class="card">
-  <h2>Ultra Speaker Sweep</h2>
-  <div class="freq" id="freqText">100 Hz</div>
-  <button id="vibe">🔇 Vibration Off</button>
-  <button id="toggle">Start Sweep</button>
+  <h2>Speaker Test Player</h2>
+  <div class="info" id="status">Ready</div>
+  <button id="vibe" class="secondary">Vibration: Off</button>
+  <button id="toggle">Play</button>
 </div>
+
+<div class="ad-wrap">
+  <a class="ad" href="https://glider-app.pages.dev" target="_blank">
+    <img src="asset/banner.jpg" alt="Ad banner">
+  </a>
+</div>
+
 <script>
-let ctx,osc,gain,playing=false,anim,freq=100,vibrationEnabled=false;
-const freqText=document.getElementById('freqText');
+let playing=false,vibrationEnabled=false,vibeTimer=null;
+const status=document.getElementById('status');
 const btn=document.getElementById('toggle');
 const vibeBtn=document.getElementById('vibe');
+const music=new Audio('asset/track.mp3');
+music.loop=true;
 
-function setFreq(f){
-  freq=Math.round(f);
-  freqText.textContent=freq+" Hz";
-  if(osc) osc.frequency.setValueAtTime(freq,ctx.currentTime);
-
-  // vibration on bass range (phones only)
-  if(vibrationEnabled && navigator.vibrate && freq<250){
-    navigator.vibrate(30);
-  }
+function startVibration(){
+  if(!navigator.vibrate) return;
+  vibeTimer=setInterval(()=>{ if(vibrationEnabled) navigator.vibrate(60); },700);
 }
 
-function sweep(){
-  const maxFreq=(ctx?ctx.sampleRate:48000)/2 - 100; // avoid aliasing limit
-  freq+=Math.max(5, freq*0.005); // logarithmic style sweep
-  if(freq>maxFreq) freq=100;
-  setFreq(freq);
-  anim=requestAnimationFrame(sweep);
+function stopVibration(){
+  if(vibeTimer) clearInterval(vibeTimer);
+  navigator.vibrate?.(0);
 }
 
 vibeBtn.onclick=()=>{
   vibrationEnabled=!vibrationEnabled;
-  vibeBtn.textContent=vibrationEnabled?"📳 Vibration On":"🔇 Vibration Off";
+  vibeBtn.textContent=vibrationEnabled?"Vibration: On":"Vibration: Off";
 };
 
 btn.onclick=async()=>{
   if(!playing){
-    ctx=new (window.AudioContext||window.webkitAudioContext)();
-    await ctx.resume();
-    osc=ctx.createOscillator();
-    gain=ctx.createGain();
-    gain.gain.value=.08;
-    osc.type='sine';
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    sweep();
+    await music.play().catch(()=>{});
+    startVibration();
+    status.textContent='Playing track.mp3';
     btn.textContent='Stop';
     playing=true;
   }else{
-    cancelAnimationFrame(anim);
-    if(osc) osc.stop();
-    if(ctx) ctx.close();
-    btn.textContent='Start Sweep';
+    music.pause();
+    music.currentTime=0;
+    stopVibration();
+    status.textContent='Stopped';
+    btn.textContent='Play';
     playing=false;
   }
 };
