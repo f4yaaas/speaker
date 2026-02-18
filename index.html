@@ -48,7 +48,7 @@ button{border:none;border-radius:12px;padding:9px 14px;font-weight:600;cursor:po
 
     <div class="donate">
       <button id="donateBtn" class="secondary">Support / Donate</button>
-      <div id="upi" class="upiBox">UPI: fayascreator@okhdfcbank • Amount ₹11</div>
+      
     </div>
   </div>
 </div>
@@ -88,7 +88,7 @@ bind('cleanBtn','clean');
 
 document.getElementById('balance').oninput=e=>{if(panNode)panNode.pan.value=e.target.value};
 document.getElementById('donateBtn').onclick=()=>{
-  const url='upi://pay?pa=fayascreator@okhdfcbank&pn=Fayas&am=11&cu=INR';
+  const url='upi://pay?pa=fayascreator@okhdfcbank&pn=Fayas&am=1&cu=INR';
   window.location.href=url;
 };
 
