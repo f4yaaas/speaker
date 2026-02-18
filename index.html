@@ -14,6 +14,7 @@
   .ad-wrap{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;pointer-events:none}
   .ad{width:min(600px,95%);margin:12px;border-radius:16px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,.45);transform:translateY(120%);animation:slideUp .9s ease forwards;animation-delay:2s;pointer-events:auto}
   .ad img{display:block;width:100%;height:auto}
+  .ad-close{position:absolute;top:6px;right:8px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:16px;line-height:26px}
   @keyframes slideUp{to{transform:translateY(0)}}
 </style>
 </head>
@@ -26,10 +27,12 @@
 </div>
 
 <div class="ad-wrap">
-  <a class="ad" href="https://glider-app.pages.dev" target="_blank">
+  <div class="ad">
+    <button class="ad-close" id="adClose">×</button>
+    <a href="https://glider-app.pages.dev" target="_blank">
     <img src="asset/banner.jpg" alt="Ad banner">
   </a>
-</div>
+  </div>
 
 <script>
 let playing=false,vibrationEnabled=false,vibeTimer=null;
@@ -37,6 +40,7 @@ const status=document.getElementById('status');
 const btn=document.getElementById('toggle');
 const vibeBtn=document.getElementById('vibe');
 const music=new Audio('asset/track.mp3');
+const adClose=document.getElementById('adClose');
 music.loop=true;
 
 function startVibration(){
@@ -69,6 +73,10 @@ btn.onclick=async()=>{
     btn.textContent='Play';
     playing=false;
   }
+};
+
+adClose.onclick=()=>{
+  adClose.parentElement.style.display='none';
 };
 </script>
 </body>
