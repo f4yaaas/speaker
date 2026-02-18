@@ -5,31 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Speaker Diagnostic</title>
 <style>
-  :root{--bg:#020617;--card:rgba(15,23,42,.75);--accent:#38bdf8;--accent2:#22c55e;--text:#e2e8f0}
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Inter,system-ui,Arial;background:radial-gradient(circle at 30% 20%,#0f172a,#020617 70%);color:var(--text);display:flex;align-items:center;justify-content:center;min-height:100vh}
-  .wrap{width:380px}
-  .title{font-size:22px;font-weight:600;margin-bottom:14px;letter-spacing:.4px}
-  .card{backdrop-filter:blur(14px);background:var(--card);border-radius:22px;padding:26px;box-shadow:0 10px 40px rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.06)}
-  .status{margin-top:8px;font-size:13px;opacity:.85}
-  .tasks{display:flex;flex-direction:column;gap:12px;margin-top:16px}
-  .task{padding:14px;border-radius:16px;background:#0f172a;border:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;transition:.25s}
-  .task.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
-  .task.disabled{opacity:.4;pointer-events:none}
-  button{border:none;border-radius:12px;padding:9px 14px;font-weight:600;cursor:pointer}
-  .start{background:var(--accent);color:#001018}
-  .stop{background:#ef4444;color:#fff}
-  .secondary{background:#1e293b;color:#cbd5f5}
-  .badge{font-size:11px;padding:4px 8px;border-radius:999px;background:#020617;border:1px solid rgba(255,255,255,.08)}
-  .tools{margin-top:18px}
-  .slider{width:100%}
-  .donate{margin-top:18px;text-align:center}
-  .upiBox{margin-top:10px;padding:12px;border-radius:12px;background:#020617;border:1px dashed rgba(255,255,255,.15);font-size:13px}
-  .adBanner{position:fixed;left:0;right:0;bottom:-120px;margin:auto;width:360px;background:#0f172a;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 30px rgba(0,0,0,.6);transition:bottom .5s}
-  .adBanner.show{bottom:18px}
-  .adText{font-size:13px;opacity:.9}
-  .adBtn{background:#38bdf8;color:#001018;border-radius:10px;padding:8px 12px;font-weight:600}
-  .adClose{background:transparent;border:none;color:#94a3b8;font-size:16px;cursor:pointer}
+:root{--bg:#020617;--card:rgba(15,23,42,.85);--accent:#60a5fa;--accent2:#34d399;--text:#e5e7eb}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,Arial;background:radial-gradient(circle at 30% 20%,#0f172a,#020617 70%);color:var(--text);display:flex;align-items:center;justify-content:center;min-height:100vh}
+.wrap{width:380px}
+.title{font-size:22px;font-weight:600;margin-bottom:14px;letter-spacing:.4px}
+.card{backdrop-filter:blur(16px);background:var(--card);border-radius:24px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.08)}
+.status{margin-top:8px;font-size:13px;opacity:.85}
+.tasks{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+.task{padding:16px;border-radius:18px;background:linear-gradient(180deg,#0b1220,#0a0f1a);border:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center}
+.task.active{border-color:var(--accent)}
+.task.disabled{opacity:.4;pointer-events:none}
+button{border:none;border-radius:12px;padding:9px 14px;font-weight:600;cursor:pointer}
+.start{background:var(--accent);color:#001018}
+.stop{background:#ef4444;color:#fff}
+.secondary{background:#1e293b;color:#cbd5f5}
+.badge{font-size:11px;padding:4px 8px;border-radius:999px;background:#020617;border:1px solid rgba(255,255,255,.08)}
+.slider{width:100%;margin-top:8px}
+.donate{margin-top:18px;text-align:center}
+.upiBox{margin-top:10px;padding:12px;border-radius:12px;background:#020617;border:1px dashed rgba(255,255,255,.15);font-size:13px}
+.adBanner{position:fixed;left:0;right:0;bottom:-120px;margin:auto;width:360px;background:#0f172a;border-radius:16px;overflow:hidden;transition:bottom .5s}
+.adBanner.show{bottom:18px}
+.adClose{position:absolute;top:6px;right:10px;background:transparent;border:none;color:#fff;font-size:16px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -37,113 +34,67 @@
   <div class="title">Speaker Diagnostic</div>
   <div class="card">
     <div class="status" id="status">Ready — select a test | <span id="timer">00:00</span></div>
+
     <div class="tasks">
-      <div class="task" id="musicTask">
-        <div>
-          <b>Music Speaker Test</b><br>
-          <span class="badge">Stereo Check</span>
-        </div>
-        <button id="musicBtn" class="start">Start</button>
-      </div>
-      <div class="task" id="vibrationTask">
-        <div>
-          <b>Vibration Sync Test</b><br>
-          <span class="badge">Hardware Check</span>
-        </div>
-        <button id="vibeBtn" class="start">Start</button>
-      </div>
-      <div class="task" id="dolbyTask">
-        <div>
-          <b>Dolby Channel Test</b><br>
-          <span class="badge">Left / Right</span>
-        </div>
-        <button id="dolbyBtn" class="start">Start</button>
-      </div>
-      <div class="task" id="toneTask">
-        <div>
-          <b>Frequency Sweep</b><br>
-          <span class="badge">200Hz → 2000kHz</span>
-        </div>
-        <button id="toneBtn" class="start">Start</button>
-            <div class="task" id="autoTask">
-        <div>
-          <b>Automatic Full Test</b><br>
-          <span class="badge">Sequential Scan</span>
-        </div>
-        <button id="autoBtn" class="start">Start</button>
-      </div>
-      <div class="task" id="cleanTask">
-        <div>
-          <b>Dust Cleaning Mode</b><br>
-          <span class="badge">Low Frequency Pulses</span>
-        </div>
-        <button id="cleanBtn" class="start">Start</button>
-      </div>
+      <div class="task" id="musicTask"><div><b>Music Speaker Test</b><br><span class="badge">Stereo Check</span></div><button id="musicBtn" class="start">Start</button></div>
+      <div class="task" id="vibrationTask"><div><b>Vibration Sync Test</b><br><span class="badge">Hardware Check</span></div><button id="vibeBtn" class="start">Start</button></div>
+      <div class="task" id="dolbyTask"><div><b>Dolby Channel Test</b><br><span class="badge">Left / Right</span></div><button id="dolbyBtn" class="start">Start</button></div>
+      <div class="task" id="toneTask"><div><b>Frequency Sweep</b><br><span class="badge">200Hz → 2000kHz</span></div><button id="toneBtn" class="start">Start</button></div>
+      <div class="task" id="cleanTask"><div><b>Dust Cleaning Mode</b><br><span class="badge">Low Frequency Pulses</span></div><button id="cleanBtn" class="start">Start</button></div>
     </div>
 
-    <div class="tools">
-      <div style="font-size:13px;margin-bottom:6px">Balance Control</div>
-      <input type="range" min="-1" max="1" step="0.1" value="0" id="balance" class="slider">
-    </div>
+    <div style="font-size:13px;margin-top:14px">Balance Control</div>
+    <input type="range" min="-1" max="1" step="0.1" value="0" id="balance" class="slider">
 
     <div class="donate">
       <button id="donateBtn" class="secondary">Support / Donate</button>
-      <div id="upi" class="upiBox" style="display:none">
-        UPI ID: ENTER_UPI_ID
-      </div>
+      <div id="upi" class="upiBox">UPI: fayascreator@okhdfcbank • Amount ₹11</div>
     </div>
-
   </div>
 </div>
 
-<script>
-let activeTask=null;
-const status=document.getElementById('status');
-const music=new Audio('asset/track.mp3'); music.loop=true;
-let vibeTimer=null; let dolbyAudio=null; let ctx=null; let osc=null; let panNode=null;
+<div id="ad" class="adBanner">
+  <img src="asset/banner.jpg" style="width:100%">
+  <button class="adClose" id="adClose">x</button>
+</div>
 
-let sessionTime=0;let timerInt=null;function startTimer(){clearInterval(timerInt);sessionTime=0;timerInt=setInterval(()=>{sessionTime++;let m=String(Math.floor(sessionTime/60)).padStart(2,'0');let s=String(sessionTime%60).padStart(2,'0');timer.textContent=m+':'+s;},1000);}function stopTimer(){clearInterval(timerInt);timer.textContent='00:00';}
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+const status=document.getElementById('status');
+const timer=document.getElementById('timer');
+const music=new Audio('asset/track.mp3'); music.loop=true;
+let vibeTimer=null,dolbyAudio=null,ctx=null,osc=null,panNode=null,activeTask=null;
+let sessionTime=0,timerInt=null;
+
+function startTimer(){clearInterval(timerInt);sessionTime=0;timerInt=setInterval(()=>{sessionTime++;let m=String(Math.floor(sessionTime/60)).padStart(2,'0');let s=String(sessionTime%60).padStart(2,'0');timer.textContent=m+':'+s;},1000);}
+function stopTimer(){clearInterval(timerInt);timer.textContent='00:00';}
 
 const tasks={
-  music:{el:musicTask,btn:musicBtn,start(){music.play();status.textContent='Music speaker test running';},stop(){music.pause();music.currentTime=0;}},
-  vibration:{el:vibrationTask,btn:vibeBtn,start(){if(navigator.vibrate){vibeTimer=setInterval(()=>navigator.vibrate(80),700);}status.textContent='Vibration sync running';},stop(){clearInterval(vibeTimer);navigator.vibrate?.(0);}},
-  dolby:{el:dolbyTask,btn:dolbyBtn,start(){dolbyAudio=new Audio('asset/dolby.mp3');dolbyAudio.loop=true;dolbyAudio.play();status.textContent='Dolby channel test running';},stop(){dolbyAudio?.pause();dolbyAudio&&(dolbyAudio.currentTime=0);}},
-  tone:{el:toneTask,btn:toneBtn,start(){ctx=new AudioContext();osc=ctx.createOscillator();panNode=ctx.createStereoPanner();osc.connect(panNode).connect(ctx.destination);osc.start();startTimer();let f=200;const i=setInterval(()=>{osc.frequency.value=f;f*=1.15;if(f>2000000){clearInterval(i)}},120);status.textContent='Frequency sweep running';},stop(){osc?.stop();ctx?.close();stopTimer();}},
-auto:{el:autoTask,btn:autoBtn,start(){startTimer();let order=['music','dolby','tone'];let i=0;const run=()=>{if(i>=order.length){stopTimer();status.textContent='Automatic test completed';return;}toggle(order[i]);setTimeout(()=>{toggle(order[i]);i++;run();},4000);};run();},stop(){stopTimer();}},
-clean:{el:cleanTask,btn:cleanBtn,start(){ctx=new AudioContext();osc=ctx.createOscillator();osc.connect(ctx.destination);osc.start();startTimer();let dir=true;setInterval(()=>{osc.frequency.value=dir?160:40;dir=!dir;},120);status.textContent='Cleaning pulses running';},stop(){osc?.stop();ctx?.close();stopTimer();}}
+ music:{start(){music.play();startTimer();status.textContent='Music speaker test running';},stop(){music.pause();music.currentTime=0;stopTimer();}},
+ vibration:{start(){if(navigator.vibrate)vibeTimer=setInterval(()=>navigator.vibrate(80),700);startTimer();status.textContent='Vibration sync running';},stop(){clearInterval(vibeTimer);navigator.vibrate?.(0);stopTimer();}},
+ dolby:{start(){dolbyAudio=new Audio('asset/dolby.mp3');dolbyAudio.loop=true;dolbyAudio.play();startTimer();status.textContent='Dolby channel test running';},stop(){dolbyAudio?.pause();stopTimer();}},
+ tone:{start(){ctx=new AudioContext();osc=ctx.createOscillator();panNode=ctx.createStereoPanner();osc.connect(panNode).connect(ctx.destination);osc.start();startTimer();let f=200;const i=setInterval(()=>{osc.frequency.value=f;f*=1.15;if(f>2000000)clearInterval(i);},120);status.textContent='Frequency sweep running';},stop(){osc?.stop();ctx?.close();stopTimer();}},
+ clean:{start(){ctx=new AudioContext();osc=ctx.createOscillator();osc.connect(ctx.destination);osc.start();startTimer();let dir=true;setInterval(()=>{osc.frequency.value=dir?160:40;dir=!dir;},120);status.textContent='Cleaning pulses running';},stop(){osc?.stop();ctx?.close();stopTimer();}}
 };
 
-function lockOthers(current){Object.values(tasks).forEach(t=>{if(t!==current)t.el.classList.add('disabled');});}
-function unlockAll(){Object.values(tasks).forEach(t=>t.el.classList.remove('disabled'));}
+function bind(id,name){const btn=document.getElementById(id);btn.onclick=()=>{if(activeTask){tasks[activeTask].stop();if(activeTask===name){activeTask=null;btn.textContent='Start';return;}document.querySelectorAll('.task button').forEach(b=>b.textContent='Start');}
+activeTask=name;tasks[name].start();btn.textContent='Stop';};}
 
-function toggle(name){
-  const t=tasks[name];
-  if(activeTask===t){t.stop();t.el.classList.remove('active');t.btn.textContent='Start';t.btn.className='start';activeTask=null;unlockAll();status.textContent='Ready — select a test';return;}
-  if(activeTask){activeTask.stop();activeTask.el.classList.remove('active');activeTask.btn.textContent='Start';activeTask.btn.className='start';}
-  activeTask=t;lockOthers(t);t.start();t.el.classList.add('active');t.btn.textContent='Stop';t.btn.className='stop';
-}
+bind('musicBtn','music');
+bind('vibeBtn','vibration');
+bind('dolbyBtn','dolby');
+bind('toneBtn','tone');
+bind('cleanBtn','clean');
 
-musicBtn.onclick=()=>toggle('music');
-vibeBtn.onclick=()=>toggle('vibration');
-dolbyBtn.onclick=()=>toggle('dolby');
-toneBtn.onclick=()=>toggle('tone');
-autoBtn.onclick=()=>toggle('auto');
-cleanBtn.onclick=()=>toggle('clean');
+document.getElementById('balance').oninput=e=>{if(panNode)panNode.pan.value=e.target.value};
+document.getElementById('donateBtn').onclick=()=>{
+  const url='upi://pay?pa=fayascreator@okhdfcbank&pn=Fayas&am=11&cu=INR';
+  window.location.href=url;
+};
 
-document.addEventListener('keydown',e=>{if(e.code==='Space'){activeTask?toggle(Object.keys(tasks).find(k=>tasks[k]===activeTask)):toggle('tone');}});
-
-balance.oninput=e=>{if(panNode)panNode.pan.value=e.target.value};
-
-donateBtn.onclick=()=>{upi.style.display=upi.style.display==='none'?'block':'none'};
-</script>
-<div id="ad" class="adBanner" style="padding:0;overflow:hidden;cursor:pointer">
-  <img src="asset/banner.jpg" alt="ad" style="width:100%;display:block">
-  <button class="adClose" id="adClose" style="position:absolute;top:6px;right:10px">x</button>
-</div>
-<script>
-setTimeout(()=>ad.classList.add('show'),1200);
-ad.onclick=(e)=>{if(e.target.id!=='adClose')window.open('https://glider-app.pages.dev','_blank');};
-adClose.onclick=()=>ad.style.display='none';
+setTimeout(()=>document.getElementById('ad').classList.add('show'),1200);
+document.getElementById('adClose').onclick=()=>document.getElementById('ad').style.display='none';
+});
 </script>
 </body>
 </html>
