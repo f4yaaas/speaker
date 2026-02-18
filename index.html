@@ -24,6 +24,7 @@
   <div class="info" id="status">Ready</div>
   <button id="vibe" class="secondary">Vibration: Off</button>
   <button id="toggle">Play</button>
+  <button id="dolby" class="secondary">Dolby Test</button>
 </div>
 
 <div class="ad-wrap">
@@ -40,6 +41,8 @@ const status=document.getElementById('status');
 const btn=document.getElementById('toggle');
 const vibeBtn=document.getElementById('vibe');
 const music=new Audio('asset/track.mp3');
+let dolbyAudio=null;
+const dolbyBtn=document.getElementById('dolby');
 const adClose=document.getElementById('adClose');
 music.loop=true;
 
@@ -77,6 +80,34 @@ btn.onclick=async()=>{
 
 adClose.onclick=()=>{
   adClose.parentElement.style.display='none';
+};
+
+// Dolby channel test using mp3 file
+function startDolby(){
+  dolbyAudio=new Audio('asset/dolby.mp3');
+  dolbyAudio.loop=true;
+  dolbyAudio.play().catch(()=>{});
+  status.textContent='Dolby test playing';
+}
+function stopDolby(){
+  if(dolbyAudio){
+    dolbyAudio.pause();
+    dolbyAudio.currentTime=0;
+  }
+  status.textContent='Dolby test stopped';
+}
+let dolbyOn=false;
+dolbyBtn.onclick=()=>{
+  if(!dolbyOn){
+    music.pause();
+    startDolby();
+    dolbyBtn.textContent='Stop Dolby Test';
+    dolbyOn=true;
+  }else{
+    stopDolby();
+    dolbyBtn.textContent='Dolby Test';
+    dolbyOn=false;
+  }
 };
 </script>
 </body>
