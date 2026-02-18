@@ -119,11 +119,6 @@ donateBtn.onclick=()=>{upi.style.display=upi.style.display==='none'?'block':'non
   <img src="asset/banner.jpg" alt="ad" style="width:100%;display:block">
   <button class="adClose" id="adClose" style="position:absolute;top:6px;right:10px">x</button>
 </div>
-  <div>
-    <button class="adBtn" id="adOpen">Open</button>
-    <button class="adClose" id="adClose">x</button>
-  </div>
-</div>
 <script>
 setTimeout(()=>ad.classList.add('show'),1200);
 ad.onclick=(e)=>{if(e.target.id!=='adClose')window.open('https://glider-app.pages.dev','_blank');};
