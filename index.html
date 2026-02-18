@@ -36,7 +36,7 @@
 <div class="wrap">
   <div class="title">Speaker Diagnostic</div>
   <div class="card">
-    <div class="status" id="status">Ready — select a test</div>
+    <div class="status" id="status">Ready — select a test | <span id="timer">00:00</span></div>
     <div class="tasks">
       <div class="task" id="musicTask">
         <div>
@@ -62,9 +62,22 @@
       <div class="task" id="toneTask">
         <div>
           <b>Frequency Sweep</b><br>
-          <span class="badge">20Hz → 20kHz</span>
+          <span class="badge">200Hz → 2000kHz</span>
         </div>
         <button id="toneBtn" class="start">Start</button>
+            <div class="task" id="autoTask">
+        <div>
+          <b>Automatic Full Test</b><br>
+          <span class="badge">Sequential Scan</span>
+        </div>
+        <button id="autoBtn" class="start">Start</button>
+      </div>
+      <div class="task" id="cleanTask">
+        <div>
+          <b>Dust Cleaning Mode</b><br>
+          <span class="badge">Low Frequency Pulses</span>
+        </div>
+        <button id="cleanBtn" class="start">Start</button>
       </div>
     </div>
 
@@ -89,11 +102,15 @@ const status=document.getElementById('status');
 const music=new Audio('asset/track.mp3'); music.loop=true;
 let vibeTimer=null; let dolbyAudio=null; let ctx=null; let osc=null; let panNode=null;
 
+let sessionTime=0;let timerInt=null;function startTimer(){clearInterval(timerInt);sessionTime=0;timerInt=setInterval(()=>{sessionTime++;let m=String(Math.floor(sessionTime/60)).padStart(2,'0');let s=String(sessionTime%60).padStart(2,'0');timer.textContent=m+':'+s;},1000);}function stopTimer(){clearInterval(timerInt);timer.textContent='00:00';}
+
 const tasks={
   music:{el:musicTask,btn:musicBtn,start(){music.play();status.textContent='Music speaker test running';},stop(){music.pause();music.currentTime=0;}},
   vibration:{el:vibrationTask,btn:vibeBtn,start(){if(navigator.vibrate){vibeTimer=setInterval(()=>navigator.vibrate(80),700);}status.textContent='Vibration sync running';},stop(){clearInterval(vibeTimer);navigator.vibrate?.(0);}},
   dolby:{el:dolbyTask,btn:dolbyBtn,start(){dolbyAudio=new Audio('asset/dolby.mp3');dolbyAudio.loop=true;dolbyAudio.play();status.textContent='Dolby channel test running';},stop(){dolbyAudio?.pause();dolbyAudio&&(dolbyAudio.currentTime=0);}},
-  tone:{el:toneTask,btn:toneBtn,start(){ctx=new AudioContext();osc=ctx.createOscillator();panNode=ctx.createStereoPanner();osc.connect(panNode).connect(ctx.destination);osc.start();let f=20;const i=setInterval(()=>{osc.frequency.value=f;f*=1.15;if(f>20000){clearInterval(i)}},120);status.textContent='Frequency sweep running';},stop(){osc?.stop();ctx?.close();}}
+  tone:{el:toneTask,btn:toneBtn,start(){ctx=new AudioContext();osc=ctx.createOscillator();panNode=ctx.createStereoPanner();osc.connect(panNode).connect(ctx.destination);osc.start();startTimer();let f=200;const i=setInterval(()=>{osc.frequency.value=f;f*=1.15;if(f>2000000){clearInterval(i)}},120);status.textContent='Frequency sweep running';},stop(){osc?.stop();ctx?.close();stopTimer();}},
+auto:{el:autoTask,btn:autoBtn,start(){startTimer();let order=['music','dolby','tone'];let i=0;const run=()=>{if(i>=order.length){stopTimer();status.textContent='Automatic test completed';return;}toggle(order[i]);setTimeout(()=>{toggle(order[i]);i++;run();},4000);};run();},stop(){stopTimer();}},
+clean:{el:cleanTask,btn:cleanBtn,start(){ctx=new AudioContext();osc=ctx.createOscillator();osc.connect(ctx.destination);osc.start();startTimer();let dir=true;setInterval(()=>{osc.frequency.value=dir?160:40;dir=!dir;},120);status.textContent='Cleaning pulses running';},stop(){osc?.stop();ctx?.close();stopTimer();}}
 };
 
 function lockOthers(current){Object.values(tasks).forEach(t=>{if(t!==current)t.el.classList.add('disabled');});}
@@ -110,6 +127,10 @@ musicBtn.onclick=()=>toggle('music');
 vibeBtn.onclick=()=>toggle('vibration');
 dolbyBtn.onclick=()=>toggle('dolby');
 toneBtn.onclick=()=>toggle('tone');
+autoBtn.onclick=()=>toggle('auto');
+cleanBtn.onclick=()=>toggle('clean');
+
+document.addEventListener('keydown',e=>{if(e.code==='Space'){activeTask?toggle(Object.keys(tasks).find(k=>tasks[k]===activeTask)):toggle('tone');}});
 
 balance.oninput=e=>{if(panNode)panNode.pan.value=e.target.value};
 
